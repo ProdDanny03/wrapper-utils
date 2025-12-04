@@ -2,7 +2,7 @@
 import functools
 import time
 import traceback
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 _DEFAULT_POOL = ThreadPoolExecutor()
 
@@ -24,17 +24,20 @@ def repeat(n=1):
 
 
 def threaded_repeat(n=1, executor=None):
-    """Decorator that repeats a call *n* times in a thread pool."""
+    """Decorator that repeats a call *n* times concurrently in a thread pool."""
 
     def decorator_threaded_repeat(func):
         @functools.wraps(func)
         def wrapper_threaded_repeat(*args, **kwargs):
-            def run_repeated():
-                for _ in range(n):
-                    value = func(*args, **kwargs)
-                return value
+            pool = executor or _DEFAULT_POOL
+            # Submit all n tasks
+            futures = [pool.submit(func, *args, **kwargs) for _ in range(n)]
 
-            return (executor or _DEFAULT_POOL).submit(run_repeated)
+            # Wait for all tasks and return the last result
+            last_result = None
+            for future in as_completed(futures):
+                last_result = future.result()
+            return last_result
 
         return wrapper_threaded_repeat
 
