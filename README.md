@@ -31,7 +31,7 @@ import numpy as np
 ### 1️⃣ `repeat`
 
 ```python
-@repeat(3)                     # will call `greet` three times
+@repeat(n=3)                     # will call `greet` three times
 def greet(name: str):
     print(f"Hello, {name}!")
 
@@ -49,7 +49,7 @@ greet("Alice")
 ### 2️⃣ `threaded_repeat`
 
 ```python
-@threaded_repeat(5)            # 5 executions, each in a thread
+@threaded_repeatn(n=5)            # 5 executions, spread out between threads
 def heavy_computation(x):
     return np.sqrt(x)
 
@@ -64,7 +64,7 @@ from concurrent.futures import ProcessPoolExecutor
 
 my_pool = ProcessPoolExecutor(max_workers=4)
 
-@threaded_repeat(2, executor=my_pool)
+@threaded_repeat(n=2, executor=my_pool)
 def cpu_bound(y):
     return sum(range(y))
 
