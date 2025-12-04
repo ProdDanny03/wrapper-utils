@@ -24,24 +24,22 @@ def repeat(n=1):
 
 
 def threaded_repeat(n=1, executor=None):
-    """Decorator that repeats a call *n* times concurrently in a thread pool."""
-
-    def decorator_threaded_repeat(func):
+    """Decorator that repeats a call *n* times concurrently in threads."""
+    def decorator(func):
         @functools.wraps(func)
-        def wrapper_threaded_repeat(*args, **kwargs):
+        def wrapper(*args, **kwargs):
             pool = executor or _DEFAULT_POOL
-            # Submit all n tasks
+            # Submit all n calls concurrently
             futures = [pool.submit(func, *args, **kwargs) for _ in range(n)]
-
-            # Wait for all tasks and return the last result
+            
+            # Wait for all tasks to complete and return the last one
             last_result = None
             for future in as_completed(futures):
                 last_result = future.result()
             return last_result
-
-        return wrapper_threaded_repeat
-
-    return decorator_threaded_repeat
+        
+        return wrapper
+    return decorator
 
 
 def catch(_func=None, *, exception=None, handler=None, silent=False):
