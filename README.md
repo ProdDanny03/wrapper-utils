@@ -49,7 +49,7 @@ greet("Alice")
 ### 2️⃣ `threaded_repeat`
 
 ```python
-@threaded_repeatn(n=5)            # 5 executions, spread out between threads
+@threaded_repeatn(n=5)           # 5 executions, spread out between threads
 def heavy_computation(x):
     return np.sqrt(x)
 
@@ -132,6 +132,34 @@ busy_wait()
 ```
 
 ---
+
+### 4️⃣ `timing threaded_repeat`
+```python
+from wrapper_utils import threaded_repeat, repeat, timeit
+
+counter1 = 0
+@timeit
+@threaded_repeat(n=1000000000)		# 1 Billion
+def test1():
+    global counter1
+    counter1 = counter1 + 1
+    # print(counter1)
+
+counter2 = 0
+@timeit
+@repeat(n=100000000)				# 1 Million
+def test2():
+    global counter2
+    counter2 = counter2 + 1
+    # print(counter2)
+
+test1()
+test2()
+
+# Quick Test Result:
+# test1 executed in 0.0014185999752953649 seconds
+# test2 executed in 71.43829840002581 seconds
+```
 
 ## 📜 License
 
