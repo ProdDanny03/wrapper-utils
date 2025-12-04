@@ -1,36 +1,43 @@
 # wrapper_utils/wrapper_utils.py
 import functools
-import traceback
-import numpy as np
 import time
+import traceback
 from concurrent.futures import ThreadPoolExecutor
 
 _DEFAULT_POOL = ThreadPoolExecutor()
 
 
 def repeat(n=1):
-    """Decorator that repeats a call *n* times and returns the last result."""
     def decorator_repeat(func):
+        if n == 1:
+            return func  # skip wrapper entirely for n=1
+
         @functools.wraps(func)
         def wrapper_repeat(*args, **kwargs):
-            for _ in np.arange(n, dtype=np.int32):
-                value = func(*args, **kwargs)
-            return value
+            for _ in range(n - 1):
+                func(*args, **kwargs)
+            return func(*args, **kwargs)
+
         return wrapper_repeat
+
     return decorator_repeat
 
 
 def threaded_repeat(n=1, executor=None):
     """Decorator that repeats a call *n* times in a thread pool."""
+
     def decorator_threaded_repeat(func):
         @functools.wraps(func)
         def wrapper_threaded_repeat(*args, **kwargs):
             def run_repeated():
-                for _ in np.arange(n, dtype=np.int32):
+                for _ in range(n):
                     value = func(*args, **kwargs)
                 return value
+
             return (executor or _DEFAULT_POOL).submit(run_repeated)
+
         return wrapper_threaded_repeat
+
     return decorator_threaded_repeat
 
 
@@ -63,6 +70,7 @@ def catch(_func=None, *, exception=None, handler=None, silent=False):
                         traceback.print_exc()
                 # Swallow the exception – caller gets ``None``
                 return None
+
         return wrapper
 
     # If the decorator is used without parentheses, ``_func`` is the target function.
@@ -74,6 +82,7 @@ def catch(_func=None, *, exception=None, handler=None, silent=False):
 
 def timeit(_func=None, *, timer=time.perf_counter, handler=None):
     """Decorator that measures execution time and optionally calls *handler*."""
+
     def decorator_timeit(func):
         @functools.wraps(func)
         def wrapper_timeit(*args, **kwargs):
@@ -85,6 +94,7 @@ def timeit(_func=None, *, timer=time.perf_counter, handler=None):
                 handler(func.__name__, run_time)
             print(f"{func.__name__} executed in {run_time} seconds")
             return ret
+
         return wrapper_timeit
 
     if _func is None:
@@ -95,6 +105,7 @@ def timeit(_func=None, *, timer=time.perf_counter, handler=None):
 
 def decorator(func):
     """Higher‑order decorator that supports both ``@decorator`` and ``@decorator(arg…)``."""
+
     @functools.wraps(func)
     def wrapper(*dargs, **dkwargs):
         # Simple usage: @something
@@ -104,6 +115,7 @@ def decorator(func):
             @functools.wraps(target)
             def wrapped(*a, **k):
                 return func(target, *a, **k)
+
             return wrapped
         else:
             # Usage with arguments: @something(x=5)
@@ -115,6 +127,9 @@ def decorator(func):
                     # Merge keyword args: decorator kwargs first, then function call kwargs
                     all_kwargs = {**dkwargs, **k}
                     return func(target, *all_args, **all_kwargs)
+
                 return wrapped
+
             return actual_decorator
+
     return wrapper
