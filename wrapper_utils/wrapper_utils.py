@@ -73,6 +73,3 @@ def timeit(_func=None, *, timer=time.perf_counter, handler=None):
         return decorator_timeit
     else:
         return decorator_timeit(_func)
-
-if __name__ == "__main__":
-    pass
