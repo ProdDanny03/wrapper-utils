@@ -6,6 +6,7 @@ A tiny collection of useful Python decorators:
 * **`threaded_repeat`** – run a function *n* times in a thread pool.
 * **`catch`** – catch selected exceptions and optionally handle them.
 * **`timeit`** – measure execution time and optionally forward the result to a handler.
+* **`decorator`** – turn a regular function with extra parameters into a full-featured decorator, preserving metadata automatically.
 
 The library has **no external runtime dependencies** except for the standard library and **NumPy** (used only for the fast `np.arange` loop).
 
@@ -27,6 +28,50 @@ pip install git+https://github.com/ProdDanny03/wrapper-utils.git
 from wrapper_utils import repeat, threaded_repeat, catch, timeit
 import numpy as np
 ```
+
+### 2️⃣ `decorator`
+
+```python
+from wrapper_utils import decorator
+
+@decorator
+def something(func, x=3, y="hello", z=[1, 2, 3]):
+    print(f"x={x}, y={y}, z={z}")
+    result = func()
+    print("done")
+    return result
+
+@something                    # uses default parameters
+def greet1():
+    print("hi1")
+
+@something(x=10, y="world")   # overrides defaults
+def greet2():
+    print("hi2")
+
+greet1()
+# Output:
+# x=3, y=hello, z=[1, 2, 3]
+# hi1
+# done
+
+greet2()
+# Output:
+# x=10, y=world, z=[1, 2, 3]
+# hi2
+# done
+```
+
+*If using mutable defaults like lists, consider using None and initializing inside the function to avoid shared state:*
+
+```python
+@decorator
+def something(func, z=None):
+    if z is None:
+        z = [1, 2, 3]
+```
+
+---
 
 ### 1️⃣ `repeat`
 

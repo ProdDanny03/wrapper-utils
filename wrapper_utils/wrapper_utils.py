@@ -134,3 +134,27 @@ def timeit(_func=None, *, timer=time.perf_counter, handler=None):
         return decorator_timeit
     else:
         return decorator_timeit(_func)
+
+def decorator(func):
+    @functools.wraps(func)
+    def wrapper(*dargs, **dkwargs):
+        # Simple usage: @something
+        if len(dargs) == 1 and callable(dargs[0]) and not dkwargs:
+            target = dargs[0]
+            @functools.wraps(target)
+            def wrapped(*a, **k):
+                return func(target, *a, **k)
+            return wrapped
+        else:
+            # Usage with arguments: @something(x=5)
+            def actual_decorator(target):
+                @functools.wraps(target)
+                def wrapped(*a, **k):
+                    # Merge positional args: decorator args first, then function call args
+                    all_args = dargs + a
+                    # Merge keyword args: decorator kwargs first, then function call kwargs
+                    all_kwargs = {**dkwargs, **k}
+                    return func(target, *all_args, **all_kwargs)
+                return wrapped
+            return actual_decorator
+    return wrapper
