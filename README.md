@@ -8,7 +8,7 @@ A tiny collection of useful Python decorators:
 * **`timeit`** – measure execution time and optionally forward the result to a handler.
 * **`decorator`** – turn a regular function with extra parameters into a full-featured decorator, preserving metadata automatically.
 
-The library has **no external runtime dependencies** except for the standard library and **NumPy** (used only for the fast `np.arange` loop).
+The library has **no external runtime dependencies**
 
 ---
 
@@ -25,15 +25,12 @@ pip install git+https://github.com/ProdDanny03/wrapper-utils.git
 ## 🚀 Quick start
 
 ```python
-from wrapper_utils import repeat, threaded_repeat, catch, timeit
-import numpy as np
+from wrapper_utils import repeat, threaded_repeat, catch, timeit, decorator
 ```
 
 ### 2️⃣ `decorator`
 
 ```python
-from wrapper_utils import decorator
-
 @decorator
 def something(func, x=3, y="hello", z=[1, 2, 3]):
     print(f"x={x}, y={y}, z={z}")
