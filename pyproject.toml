@@ -1,5 +1,5 @@
 [project]
-name = "wrapper-utils"
+name = "wrapper_utils"
 version = "0.1.0"
 description = "A couple of handy decorator functions"
 authors = [
